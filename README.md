@@ -1,4 +1,4 @@
-# 🏛️ Monitor Proposições AL — ALAL
+# 🏛️ Monitor Proposições AL — ALEAL
 
 Monitora automaticamente o SAPL da Assembleia Legislativa de Alagoas e envia email quando há proposições novas. Roda **4x por dia** via GitHub Actions (8h, 12h, 17h e 21h, horário de Brasília).
 

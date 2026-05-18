@@ -1,7 +1,7 @@
 {
   "name": "monitor-proposicoes-al",
   "version": "1.0.0",
-  "description": "Monitor automático de proposições da ALAL",
+  "description": "Monitor automático de proposições da ALEAL",
   "main": "monitor.js",
   "scripts": {
     "start": "node monitor.js"

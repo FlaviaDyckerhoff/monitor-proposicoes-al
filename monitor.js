@@ -8,7 +8,8 @@ const ARQUIVO_ESTADO = 'estado.json';
 
 // CSV export — traz ID, tipo, autor e ementa em uma só chamada
 // Ordenado por ID decrescente para pegar as mais novas primeiro
-const CSV_URL = 'http://sapl.al.al.leg.br/materia/pesquisar-materia?format=csv&ano=2026&orderby=-id';
+const BASE_URL = 'http://sapl.al.al.leg.br';
+const CSV_URL = `${BASE_URL}/materia/pesquisar-materia?format=csv&ano=2026&orderby=-id`;
 
 function carregarEstado() {
   if (fs.existsSync(ARQUIVO_ESTADO)) {
@@ -39,14 +40,17 @@ function parseCSV(texto) {
 
     const limpar = (s) => s.replace(/^"|"$/g, '').trim();
 
+    const id = limpar(campos[0]);
+
     resultado.push({
-      id: limpar(campos[0]),
+      id,
       ano: limpar(campos[1]),
       numero: limpar(campos[2]),
       sigla: limpar(campos[3]),
       tipo: limpar(campos[4]),
       autor: limpar(campos[5]),
       ementa: limpar(campos[7]).substring(0, 200),
+      url: `${BASE_URL}/materia/${id}`,
     });
   }
 
@@ -55,7 +59,7 @@ function parseCSV(texto) {
 
 async function buscarProposicoes() {
   const ano = new Date().getFullYear();
-  const url = `http://sapl.al.al.leg.br/materia/pesquisar-materia?format=csv&ano=${ano}&orderby=-id`;
+  const url = `${BASE_URL}/materia/pesquisar-materia?format=csv&ano=${ano}&orderby=-id`;
 
   console.log(`🔍 Buscando proposições de ${ano} via CSV...`);
 
@@ -90,11 +94,11 @@ async function enviarEmail(novas) {
   });
 
   const linhas = Object.keys(porTipo).sort().map(tipo => {
-    const header = `<tr><td colspan="5" style="padding:10px 8px 4px;background:#f0f4f8;font-weight:bold;color:#1a3a5c;font-size:13px;border-top:2px solid #1a3a5c">${tipo} — ${porTipo[tipo].length} proposição(ões)</td></tr>`;
+    const header = `<tr><td colspan="4" style="padding:10px 8px 4px;background:#f0f4f8;font-weight:bold;color:#1a3a5c;font-size:13px;border-top:2px solid #1a3a5c">${tipo} — ${porTipo[tipo].length} proposição(ões)</td></tr>`;
     const rows = porTipo[tipo].map(p =>
       `<tr>
         <td style="padding:8px;border-bottom:1px solid #eee;color:#555;font-size:12px">${p.sigla || '-'}</td>
-        <td style="padding:8px;border-bottom:1px solid #eee"><strong>${p.numero || '-'}/${p.ano || '-'}</strong></td>
+        <td style="padding:8px;border-bottom:1px solid #eee"><strong><a href="${p.url || BASE_URL}" style="color:#1a3a5c;text-decoration:none">${p.numero || '-'}/${p.ano || '-'}</a></strong></td>
         <td style="padding:8px;border-bottom:1px solid #eee;font-size:12px">${p.autor || '-'}</td>
         <td style="padding:8px;border-bottom:1px solid #eee;font-size:12px">${p.ementa || '-'}</td>
       </tr>`
@@ -105,7 +109,7 @@ async function enviarEmail(novas) {
   const html = `
     <div style="font-family:Arial,sans-serif;max-width:900px;margin:0 auto">
       <h2 style="color:#1a3a5c;border-bottom:2px solid #1a3a5c;padding-bottom:8px">
-        🏛️ ALAL — ${novas.length} nova(s) proposição(ões)
+        🏛️ ALEAL — ${novas.length} nova(s) proposição(ões)
       </h2>
       <p style="color:#666">Monitoramento automático — ${new Date().toLocaleString('pt-BR')}</p>
       <table style="width:100%;border-collapse:collapse;font-size:14px">
@@ -120,15 +124,15 @@ async function enviarEmail(novas) {
         <tbody>${linhas}</tbody>
       </table>
       <p style="margin-top:20px;font-size:12px;color:#999">
-        Acesse: <a href="http://sapl.al.al.leg.br/materia/pesquisar-materia">sapl.al.al.leg.br</a>
+        Acesse: <a href="${BASE_URL}/materia/pesquisar-materia">sapl.al.al.leg.br</a>
       </p>
     </div>
   `;
 
   await transporter.sendMail({
-    from: `"Monitor ALAL" <${EMAIL_REMETENTE}>`,
+    from: `"Monitor ALEAL" <${EMAIL_REMETENTE}>`,
     to: EMAIL_DESTINO,
-    subject: `🏛️ ALAL: ${novas.length} nova(s) proposição(ões) — ${new Date().toLocaleDateString('pt-BR')}`,
+    subject: `🏛️ ALEAL: ${novas.length} nova(s) proposição(ões) — ${new Date().toLocaleDateString('pt-BR')}`,
     html,
   });
 
@@ -136,7 +140,7 @@ async function enviarEmail(novas) {
 }
 
 (async () => {
-  console.log('🚀 Iniciando monitor ALAL...');
+  console.log('🚀 Iniciando monitor ALEAL...');
   console.log(`⏰ ${new Date().toLocaleString('pt-BR')}`);
 
   const estado = carregarEstado();
