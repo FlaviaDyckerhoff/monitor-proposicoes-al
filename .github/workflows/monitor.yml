@@ -5,7 +5,7 @@ env:
 
 on:
   schedule:
-    - cron: '2 9 * * 1-5'   # 06:02 BRT
+    - cron: '2 8 * * 1-5'   # 05:02 BRT
   workflow_dispatch:
 
 jobs:
