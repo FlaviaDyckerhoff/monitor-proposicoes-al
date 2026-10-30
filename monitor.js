@@ -102,8 +102,7 @@ async function buscarProposicoes() {
   const response = await fetch(url);
 
   if (!response.ok) {
-    console.error(`❌ Erro ao baixar CSV: ${response.status} ${response.statusText}`);
-    return [];
+    throw new Error(`Erro ao baixar CSV: ${response.status} ${response.statusText}`);
   }
 
   const texto = await response.text();
